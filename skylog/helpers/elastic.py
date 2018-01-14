@@ -1,5 +1,6 @@
-from . elasticsearch import Elasticsearch
 import datetime
+
+from skylog.lib.elasticsearch import Elasticsearch
 
 
 def server_test(servers):
@@ -28,6 +29,7 @@ class ElasticWrapper:
         self.servers = server_test(servers)
         self.client = Elasticsearch(self.servers, maxsize=100)
         self.Elasticsearch = self.client
+        self.ES = self.client
         self.index_creation = self.Elasticsearch.indices.get_settings(index=self.index)[self.index]['settings']['index']['creation_date']
         self.index_uuid = self.Elasticsearch.indices.get_settings(index=self.index)[self.index]['settings']['index']['uuid']
 
@@ -57,7 +59,7 @@ class ElasticWrapper:
         """
         epoch = int(self.Elasticsearch.indices.get_settings(index=self.index)[self.index]['settings']['index']['creation_date']) // 1000
         delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(epoch)
-        seconds = delta.seconds
+        seconds = int(delta.total_seconds())
         days, seconds = seconds // 86400, seconds % 86400
         hours, seconds = seconds // 3600, seconds % 3600
         minutes, seconds = seconds // 60, seconds % 60
@@ -74,5 +76,3 @@ class ElasticWrapper:
             message += '\nIt is time.'
 
         return print(message)
-
-
